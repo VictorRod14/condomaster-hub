@@ -20,11 +20,14 @@ const Announcements = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       const { data } = await supabase
-        .from("profiles")
+        .from("user_roles")
         .select("role")
-        .eq("id", user.id)
+        .eq("user_id", user.id)
         .single();
-      if (data) setUserRole(data.role);
+      
+      if (data) {
+        setUserRole(data.role);
+      }
     }
   };
 

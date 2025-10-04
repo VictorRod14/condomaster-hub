@@ -44,9 +44,9 @@ export const DashboardLayout = () => {
 
   const fetchUserRole = async (userId: string) => {
     const { data, error } = await supabase
-      .from("profiles")
+      .from("user_roles")
       .select("role")
-      .eq("id", userId)
+      .eq("user_id", userId)
       .single();
 
     if (data && !error) {

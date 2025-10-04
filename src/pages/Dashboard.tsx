@@ -35,11 +35,17 @@ const Dashboard = () => {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("condominium_id, role, unit_id")
+      .select("condominium_id, unit_id")
       .eq("id", user.id)
       .single();
 
-    if (!profile) return;
+    const { data: userRole } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single();
+
+    if (!profile || !userRole) return;
 
     // Fetch announcements count
     const { count: announcementsCount } = await supabase
@@ -53,7 +59,7 @@ const Dashboard = () => {
       .select("*", { count: "exact", head: true })
       .eq("status", "pendente");
 
-    if (profile.role === "morador") {
+    if (userRole.role === "morador") {
       paymentsQuery = paymentsQuery.eq("unit_id", profile.unit_id);
     } else {
       paymentsQuery = paymentsQuery.eq("condominium_id", profile.condominium_id);
@@ -66,7 +72,7 @@ const Dashboard = () => {
       .from("reservations")
       .select("*", { count: "exact", head: true });
 
-    if (profile.role === "morador") {
+    if (userRole.role === "morador") {
       reservationsQuery = reservationsQuery.eq("user_id", user.id);
     } else {
       reservationsQuery = reservationsQuery.eq("condominium_id", profile.condominium_id);
@@ -80,7 +86,7 @@ const Dashboard = () => {
       .select("*", { count: "exact", head: true })
       .eq("status", "aberta");
 
-    if (profile.role === "morador") {
+    if (userRole.role === "morador") {
       occurrencesQuery = occurrencesQuery.eq("reporter_id", user.id);
     } else {
       occurrencesQuery = occurrencesQuery.eq("condominium_id", profile.condominium_id);
@@ -115,7 +121,7 @@ const Dashboard = () => {
       title: "Reservas",
       value: stats.reservations,
       icon: Calendar,
-      description: profile?.role === "morador" ? "Suas reservas" : "Total de reservas",
+      description: "Reservas ativas",
       color: "text-success",
     },
     {
