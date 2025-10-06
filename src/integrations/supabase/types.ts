@@ -466,6 +466,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_multiple_roles_to_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]

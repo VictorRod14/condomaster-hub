@@ -7,6 +7,9 @@ import { DashboardLayout } from "./components/layout/DashboardLayout";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Announcements from "./pages/Announcements";
+import Reservations from "./pages/Reservations";
+import Occurrences from "./pages/Occurrences";
+import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,9 +28,9 @@ const App = () => (
             <Route path="/announcements" element={<Announcements />} />
             <Route path="/residents" element={<Dashboard />} />
             <Route path="/financial" element={<Dashboard />} />
-            <Route path="/reservations" element={<Dashboard />} />
-            <Route path="/occurrences" element={<Dashboard />} />
-            <Route path="/messages" element={<Dashboard />} />
+            <Route path="/reservations" element={<Reservations />} />
+            <Route path="/occurrences" element={<Occurrences />} />
+            <Route path="/messages" element={<Chat />} />
             <Route path="/condominiums" element={<Dashboard />} />
             <Route path="/users" element={<Dashboard />} />
           </Route>
