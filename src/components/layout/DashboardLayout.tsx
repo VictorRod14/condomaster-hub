@@ -46,11 +46,18 @@ export const DashboardLayout = () => {
     const { data, error } = await supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", userId)
-      .single();
+      .eq("user_id", userId);
 
-    if (data && !error) {
-      setUserRole(data.role);
+    if (data && !error && data.length > 0) {
+      // Priority: admin > sindico > morador
+      const roles = data.map(r => r.role);
+      if (roles.includes('admin')) {
+        setUserRole('admin');
+      } else if (roles.includes('sindico')) {
+        setUserRole('sindico');
+      } else {
+        setUserRole('morador');
+      }
     }
   };
 
