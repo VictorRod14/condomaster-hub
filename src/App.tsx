@@ -11,6 +11,10 @@ import Reservations from "./pages/Reservations";
 import Occurrences from "./pages/Occurrences";
 import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
+import Users from "./pages/Users";
+import Residents from "./pages/Residents";
+import Financial from "./pages/Financial";
+import Condominiums from "./pages/Condominiums";
 
 const queryClient = new QueryClient();
 
@@ -26,13 +30,13 @@ const App = () => (
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/announcements" element={<Announcements />} />
-            <Route path="/residents" element={<Dashboard />} />
-            <Route path="/financial" element={<Dashboard />} />
+            <Route path="/residents" element={<Residents />} />
+            <Route path="/financial" element={<Financial />} />
             <Route path="/reservations" element={<Reservations />} />
             <Route path="/occurrences" element={<Occurrences />} />
             <Route path="/messages" element={<Chat />} />
-            <Route path="/condominiums" element={<Dashboard />} />
-            <Route path="/users" element={<Dashboard />} />
+            <Route path="/condominiums" element={<Condominiums />} />
+            <Route path="/users" element={<Users />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
