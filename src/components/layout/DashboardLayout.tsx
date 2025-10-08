@@ -5,6 +5,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { Loader2 } from "lucide-react";
 import { Session, User } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
 export const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -22,6 +23,11 @@ export const DashboardLayout = () => {
         
         if (!session) {
           navigate("/auth");
+        } else if (session.user.email !== "victorodovalho@gmail.com") {
+          // Verificação de segurança: apenas o email autorizado pode acessar
+          toast.error("Acesso não autorizado");
+          supabase.auth.signOut();
+          navigate("/auth");
         }
       }
     );
@@ -33,6 +39,11 @@ export const DashboardLayout = () => {
       
       if (!session) {
         navigate("/auth");
+      } else if (session.user.email !== "victorodovalho@gmail.com") {
+        // Verificação de segurança: apenas o email autorizado pode acessar
+        toast.error("Acesso não autorizado");
+        supabase.auth.signOut();
+        navigate("/auth");
       } else {
         fetchUserRole(session.user.id);
       }
@@ -43,20 +54,29 @@ export const DashboardLayout = () => {
   }, [navigate]);
 
   const fetchUserRole = async (userId: string) => {
+    // Verificar se há um perfil salvo no localStorage
+    const savedRole = localStorage.getItem('selectedRole');
+    
     const { data, error } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", userId);
 
     if (data && !error && data.length > 0) {
-      // Priority: admin > sindico > morador
-      const roles = data.map(r => r.role);
-      if (roles.includes('admin')) {
-        setUserRole('admin');
-      } else if (roles.includes('sindico')) {
-        setUserRole('sindico');
+      const roles = data.map(r => r.role as string);
+      
+      // Se há um perfil salvo e o usuário tem esse perfil, usar ele
+      if (savedRole && roles.includes(savedRole)) {
+        setUserRole(savedRole);
       } else {
-        setUserRole('morador');
+        // Caso contrário, usar a prioridade padrão: admin > sindico > morador
+        if (roles.includes('admin')) {
+          setUserRole('admin');
+        } else if (roles.includes('sindico')) {
+          setUserRole('sindico');
+        } else {
+          setUserRole('morador');
+        }
       }
     }
   };
@@ -75,6 +95,7 @@ export const DashboardLayout = () => {
 
   const handleRoleChange = (newRole: string) => {
     setUserRole(newRole);
+    localStorage.setItem('selectedRole', newRole);
   };
 
   return (

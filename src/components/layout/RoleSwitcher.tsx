@@ -8,6 +8,12 @@ interface RoleSwitcherProps {
   onRoleChange: (role: string) => void;
 }
 
+const roleLabels: Record<string, string> = {
+  admin: "Administrador",
+  sindico: "Síndico",
+  morador: "Morador"
+};
+
 export const RoleSwitcher = ({ currentRole, onRoleChange }: RoleSwitcherProps) => {
   const [availableRoles, setAvailableRoles] = useState<string[]>([]);
 
@@ -35,26 +41,28 @@ export const RoleSwitcher = ({ currentRole, onRoleChange }: RoleSwitcherProps) =
 
   const handleRoleChange = (role: string) => {
     onRoleChange(role);
-    toast.success(`Perfil alterado para ${role}`);
+    localStorage.setItem('selectedRole', role);
+    toast.success(`Perfil alterado para ${roleLabels[role]}`);
   };
 
   if (availableRoles.length <= 1) return null;
 
-  const roleLabels: Record<string, string> = {
-    admin: "Administrador",
-    sindico: "Síndico",
-    morador: "Morador"
-  };
-
   return (
-    <div className="px-4 py-2">
+    <div className="px-4 py-2 border-b border-sidebar-border">
+      <label className="text-xs text-sidebar-foreground/60 mb-2 block">Perfil Ativo</label>
       <Select value={currentRole} onValueChange={handleRoleChange}>
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder="Selecione o perfil" />
+        <SelectTrigger className="w-full bg-sidebar-accent text-sidebar-foreground border-sidebar-border">
+          <SelectValue>
+            {roleLabels[currentRole] || currentRole}
+          </SelectValue>
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-popover border-border">
           {availableRoles.map((role) => (
-            <SelectItem key={role} value={role}>
+            <SelectItem 
+              key={role} 
+              value={role}
+              className="text-popover-foreground hover:bg-accent"
+            >
               {roleLabels[role] || role}
             </SelectItem>
           ))}
