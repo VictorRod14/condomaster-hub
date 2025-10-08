@@ -73,10 +73,14 @@ export const DashboardLayout = () => {
     return null;
   }
 
+  const handleRoleChange = (newRole: string) => {
+    setUserRole(newRole);
+  };
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
-        <AppSidebar userRole={userRole} />
+        <AppSidebar userRole={userRole} onRoleChange={handleRoleChange} />
         <main className="flex-1 flex flex-col">
           <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 lg:px-6">
             <SidebarTrigger />

@@ -15,12 +15,14 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { RoleSwitcher } from "./RoleSwitcher";
 
 interface AppSidebarProps {
   userRole?: string;
+  onRoleChange?: (role: string) => void;
 }
 
-export const AppSidebar = ({ userRole = "morador" }: AppSidebarProps) => {
+export const AppSidebar = ({ userRole = "morador", onRoleChange }: AppSidebarProps) => {
   const navigate = useNavigate();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
@@ -106,15 +108,18 @@ export const AppSidebar = ({ userRole = "morador" }: AppSidebarProps) => {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border p-4">
-        <Button
-          variant="ghost"
-          className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent"
-          onClick={handleLogout}
-        >
-          <LogOut className="h-4 w-4" />
-          {!collapsed && <span className="ml-2">Sair</span>}
-        </Button>
+      <SidebarFooter className="border-t border-sidebar-border">
+        {!collapsed && onRoleChange && <RoleSwitcher currentRole={userRole} onRoleChange={onRoleChange} />}
+        <div className="p-4 pt-2">
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-4 w-4" />
+            {!collapsed && <span className="ml-2">Sair</span>}
+          </Button>
+        </div>
       </SidebarFooter>
     </Sidebar>
   );
