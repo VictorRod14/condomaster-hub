@@ -1,4 +1,4 @@
-import { Home, Building2, Users, Megaphone, DollarSign, Calendar, AlertCircle, MessageSquare, LogOut } from "lucide-react";
+import { Home, Building2, Users, Megaphone, DollarSign, Calendar, AlertCircle, MessageSquare, LogOut, ShoppingCart, Package, UserCog } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -40,25 +40,36 @@ export const AppSidebar = ({ userRole = "morador", onRoleChange }: AppSidebarPro
   const adminItems = [
     { title: "Dashboard", url: "/dashboard", icon: Home },
     { title: "Condomínios", url: "/condominiums", icon: Building2 },
-    { title: "Usuários", url: "/users", icon: Users },
+    { title: "Moradores", url: "/residents", icon: Users },
+    { title: "Usuários", url: "/users", icon: UserCog },
+    { title: "Mercadinho", url: "/marketplace", icon: ShoppingCart },
+    { title: "Ocorrências", url: "/occurrences", icon: AlertCircle },
+    { title: "Avisos", url: "/announcements", icon: Megaphone },
+    { title: "Reservas", url: "/reservations", icon: Calendar },
+    { title: "Financeiro", url: "/financial", icon: DollarSign },
+    { title: "Chat", url: "/messages", icon: MessageSquare },
   ];
 
   const sindicoItems = [
     { title: "Dashboard", url: "/dashboard", icon: Home },
-    { title: "Moradores", url: "/residents", icon: Users },
-    { title: "Avisos", url: "/announcements", icon: Megaphone },
-    { title: "Financeiro", url: "/financial", icon: DollarSign },
-    { title: "Reservas", url: "/reservations", icon: Calendar },
+    { title: "Moradores", url: "/residents-management", icon: Users },
+    { title: "Mercadinho", url: "/marketplace", icon: ShoppingCart },
+    { title: "Pedidos", url: "/orders-management", icon: Package },
     { title: "Ocorrências", url: "/occurrences", icon: AlertCircle },
-    { title: "Mensagens", url: "/messages", icon: MessageSquare },
+    { title: "Avisos", url: "/announcements", icon: Megaphone },
+    { title: "Reservas", url: "/reservations", icon: Calendar },
+    { title: "Financeiro", url: "/financial", icon: DollarSign },
+    { title: "Chat", url: "/messages", icon: MessageSquare },
   ];
 
   const moradorItems = [
     { title: "Dashboard", url: "/dashboard", icon: Home },
-    { title: "Avisos", url: "/announcements", icon: Megaphone },
-    { title: "Boletos", url: "/financial", icon: DollarSign },
-    { title: "Reservas", url: "/reservations", icon: Calendar },
+    { title: "Mercadinho", url: "/marketplace", icon: ShoppingCart },
+    { title: "Meus Pedidos", url: "/my-orders", icon: Package },
     { title: "Ocorrências", url: "/occurrences", icon: AlertCircle },
+    { title: "Avisos", url: "/announcements", icon: Megaphone },
+    { title: "Reservas", url: "/reservations", icon: Calendar },
+    { title: "Financeiro", url: "/financial", icon: DollarSign },
     { title: "Chat", url: "/messages", icon: MessageSquare },
   ];
 

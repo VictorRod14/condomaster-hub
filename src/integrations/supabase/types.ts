@@ -55,6 +55,70 @@ export type Database = {
           },
         ]
       }
+      comentarios_avisos: {
+        Row: {
+          aviso_id: string
+          comentario: string
+          created_at: string | null
+          id: string
+          usuario_id: string
+        }
+        Insert: {
+          aviso_id: string
+          comentario: string
+          created_at?: string | null
+          id?: string
+          usuario_id: string
+        }
+        Update: {
+          aviso_id?: string
+          comentario?: string
+          created_at?: string | null
+          id?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comentarios_avisos_aviso_id_fkey"
+            columns: ["aviso_id"]
+            isOneToOne: false
+            referencedRelation: "announcements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comentarios_ocorrencias: {
+        Row: {
+          comentario: string
+          created_at: string | null
+          id: string
+          ocorrencia_id: string
+          usuario_id: string
+        }
+        Insert: {
+          comentario: string
+          created_at?: string | null
+          id?: string
+          ocorrencia_id: string
+          usuario_id: string
+        }
+        Update: {
+          comentario?: string
+          created_at?: string | null
+          id?: string
+          ocorrencia_id?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comentarios_ocorrencias_ocorrencia_id_fkey"
+            columns: ["ocorrencia_id"]
+            isOneToOne: false
+            referencedRelation: "occurrences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       common_areas: {
         Row: {
           active: boolean | null
@@ -189,6 +253,51 @@ export type Database = {
           },
         ]
       }
+      itens_pedido: {
+        Row: {
+          created_at: string | null
+          id: string
+          pedido_id: string
+          preco_unitario: number
+          produto_id: string
+          quantidade: number
+          subtotal: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          pedido_id: string
+          preco_unitario: number
+          produto_id: string
+          quantidade: number
+          subtotal: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          pedido_id?: string
+          preco_unitario?: number
+          produto_id?: string
+          quantidade?: number
+          subtotal?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "itens_pedido_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "itens_pedido_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           condominium_id: string
@@ -286,6 +395,98 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pedidos: {
+        Row: {
+          condominio_id: string
+          created_at: string | null
+          forma_pagamento: string
+          horario_entrega: string | null
+          id: string
+          morador_id: string
+          observacoes: string | null
+          status: string
+          total: number
+          updated_at: string | null
+        }
+        Insert: {
+          condominio_id: string
+          created_at?: string | null
+          forma_pagamento: string
+          horario_entrega?: string | null
+          id?: string
+          morador_id: string
+          observacoes?: string | null
+          status?: string
+          total: number
+          updated_at?: string | null
+        }
+        Update: {
+          condominio_id?: string
+          created_at?: string | null
+          forma_pagamento?: string
+          horario_entrega?: string | null
+          id?: string
+          morador_id?: string
+          observacoes?: string | null
+          status?: string
+          total?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pedidos_condominio_id_fkey"
+            columns: ["condominio_id"]
+            isOneToOne: false
+            referencedRelation: "condominiums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      produtos: {
+        Row: {
+          avaliacao: number | null
+          categoria: string
+          created_at: string | null
+          descricao: string | null
+          estoque: number | null
+          external_id: number | null
+          id: string
+          imagem_url: string | null
+          nome: string
+          preco: number
+          total_avaliacoes: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          avaliacao?: number | null
+          categoria: string
+          created_at?: string | null
+          descricao?: string | null
+          estoque?: number | null
+          external_id?: number | null
+          id?: string
+          imagem_url?: string | null
+          nome: string
+          preco: number
+          total_avaliacoes?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          avaliacao?: number | null
+          categoria?: string
+          created_at?: string | null
+          descricao?: string | null
+          estoque?: number | null
+          external_id?: number | null
+          id?: string
+          imagem_url?: string | null
+          nome?: string
+          preco?: number
+          total_avaliacoes?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -466,14 +667,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      assign_multiple_roles_to_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      get_user_condominium: {
-        Args: { user_id: string }
-        Returns: string
-      }
+      assign_multiple_roles_to_admin: { Args: never; Returns: undefined }
+      get_user_condominium: { Args: { user_id: string }; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]

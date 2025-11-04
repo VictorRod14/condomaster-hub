@@ -15,6 +15,9 @@ import Users from "./pages/Users";
 import Residents from "./pages/Residents";
 import Financial from "./pages/Financial";
 import Condominiums from "./pages/Condominiums";
+import Marketplace from "./pages/Marketplace";
+import MyOrders from "./pages/MyOrders";
+import ResidentsManagement from "./pages/ResidentsManagement";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +40,10 @@ const App = () => (
             <Route path="/messages" element={<Chat />} />
             <Route path="/condominiums" element={<Condominiums />} />
             <Route path="/users" element={<Users />} />
+            <Route path="/marketplace" element={<Marketplace />} />
+            <Route path="/my-orders" element={<MyOrders />} />
+            <Route path="/orders-management" element={<MyOrders />} />
+            <Route path="/residents-management" element={<ResidentsManagement />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
