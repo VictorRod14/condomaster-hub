@@ -259,7 +259,10 @@ export type Database = {
           id: string
           pedido_id: string
           preco_unitario: number
-          produto_id: string
+          produto_external_id: number | null
+          produto_id: string | null
+          produto_imagem: string | null
+          produto_nome: string | null
           quantidade: number
           subtotal: number
         }
@@ -268,7 +271,10 @@ export type Database = {
           id?: string
           pedido_id: string
           preco_unitario: number
-          produto_id: string
+          produto_external_id?: number | null
+          produto_id?: string | null
+          produto_imagem?: string | null
+          produto_nome?: string | null
           quantidade: number
           subtotal: number
         }
@@ -277,7 +283,10 @@ export type Database = {
           id?: string
           pedido_id?: string
           preco_unitario?: number
-          produto_id?: string
+          produto_external_id?: number | null
+          produto_id?: string | null
+          produto_imagem?: string | null
+          produto_nome?: string | null
           quantidade?: number
           subtotal?: number
         }
@@ -287,13 +296,6 @@ export type Database = {
             columns: ["pedido_id"]
             isOneToOne: false
             referencedRelation: "pedidos"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "itens_pedido_produto_id_fkey"
-            columns: ["produto_id"]
-            isOneToOne: false
-            referencedRelation: "produtos"
             referencedColumns: ["id"]
           },
         ]

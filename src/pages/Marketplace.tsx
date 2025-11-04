@@ -46,10 +46,12 @@ export default function Marketplace() {
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('fetch-categories');
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-categories`;
+      const response = await fetch(url);
       
-      if (error) throw error;
+      if (!response.ok) throw new Error('Failed to fetch categories');
       
+      const data = await response.json();
       setCategories(data || []);
     } catch (error: any) {
       console.error('Error fetching categories:', error);
@@ -70,12 +72,12 @@ export default function Marketplace() {
         params.append('search', searchQuery);
       }
 
-      const { data, error } = await supabase.functions.invoke('fetch-products', {
-        body: { category: selectedCategory, search: searchQuery }
-      });
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-products?${params.toString()}`;
+      const response = await fetch(url);
       
-      if (error) throw error;
+      if (!response.ok) throw new Error('Failed to fetch products');
       
+      const data = await response.json();
       setProducts(data?.products || []);
     } catch (error: any) {
       console.error('Error fetching products:', error);

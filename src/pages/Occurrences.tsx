@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { AlertCircle, Plus, Clock, CheckCircle, XCircle } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Comments } from "@/components/Comments";
 import {
   Dialog,
   DialogContent,
@@ -239,7 +240,7 @@ const Occurrences = () => {
                 <p className="text-sm text-muted-foreground mb-4">
                   {occurrence.description}
                 </p>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
                   <span>
                     Criado em: {format(new Date(occurrence.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                   </span>
@@ -249,6 +250,9 @@ const Occurrences = () => {
                     </span>
                   )}
                 </div>
+                
+                {/* Seção de Comentários */}
+                <Comments itemId={occurrence.id} itemType="occurrence" />
               </CardContent>
             </Card>
           ))

@@ -128,7 +128,9 @@ export default function MyOrders() {
 
       const items = cart.map(item => ({
         pedido_id: order.id,
-        produto_id: String(item.id),
+        produto_external_id: item.id,
+        produto_nome: item.title,
+        produto_imagem: item.thumbnail,
         quantidade: item.quantity,
         preco_unitario: item.price,
         subtotal: item.price * item.quantity
