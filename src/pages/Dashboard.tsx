@@ -119,26 +119,76 @@ const Dashboard = () => {
   const fetchWeather = async () => {
     setLoadingWeather(true);
     try {
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("condominiums(*)")
-        .eq("id", (await supabase.auth.getUser()).data.user?.id)
-        .single();
+      // Tentar obter localização do usuário
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+            
+            // Usar coordenadas para buscar clima
+            const response = await fetch(
+              `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-weather`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lat: latitude, lon: longitude })
+              }
+            );
 
-      const city = profileData?.condominiums?.city || "São Paulo";
+            if (response.ok) {
+              const data = await response.json();
+              setWeather(data);
+            }
+          },
+          async (error) => {
+            console.log("Erro de geolocalização, usando cidade do perfil:", error);
+            // Fallback: usar cidade do perfil
+            const { data: profileData } = await supabase
+              .from("profiles")
+              .select("condominiums(*)")
+              .eq("id", (await supabase.auth.getUser()).data.user?.id)
+              .single();
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-weather`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ city })
+            const city = profileData?.condominiums?.city || "São Paulo";
+
+            const response = await fetch(
+              `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-weather`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ city })
+              }
+            );
+
+            if (response.ok) {
+              const data = await response.json();
+              setWeather(data);
+            }
+          }
+        );
+      } else {
+        // Navegador não suporta geolocalização
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("condominiums(*)")
+          .eq("id", (await supabase.auth.getUser()).data.user?.id)
+          .single();
+
+        const city = profileData?.condominiums?.city || "São Paulo";
+
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-weather`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ city })
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setWeather(data);
         }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setWeather(data);
       }
     } catch (error) {
       console.error("Erro ao buscar clima:", error);

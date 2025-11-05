@@ -195,45 +195,46 @@ export default function Marketplace() {
           <p className="text-muted-foreground">Nenhum produto encontrado</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {products.map((product) => (
             <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
               <div className="aspect-square bg-muted relative overflow-hidden">
                 <img
                   src={product.thumbnail}
                   alt={product.title}
-                  className="w-full h-full object-contain p-4"
+                  className="w-full h-full object-contain p-2"
                 />
-                <Badge className="absolute top-2 right-2">
+                <Badge className="absolute top-1 right-1 text-xs">
                   {product.category}
                 </Badge>
               </div>
-              <div className="p-4">
-                <h3 className="font-semibold text-lg mb-2 line-clamp-2">
+              <div className="p-3">
+                <h3 className="font-semibold text-sm mb-1 line-clamp-2">
                   {product.title}
                 </h3>
-                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                <p className="text-xs text-muted-foreground mb-2 line-clamp-1">
                   {product.description}
                 </p>
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-1 mb-2">
                   <div className="flex items-center">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="ml-1 text-sm font-medium">{product.rating.toFixed(1)}</span>
+                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                    <span className="ml-1 text-xs font-medium">{product.rating.toFixed(1)}</span>
                   </div>
                   <span className="text-xs text-muted-foreground">
-                    {product.stock > 0 ? `${product.stock} em estoque` : 'Esgotado'}
+                    {product.stock > 0 ? `${product.stock} un.` : 'Esgotado'}
                   </span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-primary">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-lg font-bold text-primary">
                     R$ {product.price.toFixed(2)}
                   </span>
                   <Button
                     onClick={() => addToCart(product)}
                     disabled={product.stock === 0}
+                    size="sm"
+                    className="h-8"
                   >
-                    <ShoppingCart className="mr-2 h-4 w-4" />
-                    Adicionar
+                    <ShoppingCart className="h-3 w-3" />
                   </Button>
                 </div>
               </div>

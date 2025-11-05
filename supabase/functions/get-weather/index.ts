@@ -11,14 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { city } = await req.json();
-
-    if (!city) {
-      return new Response(
-        JSON.stringify({ error: 'Cidade é obrigatória' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const { city, lat, lon } = await req.json();
 
     const apiKey = Deno.env.get('OPENWEATHER_API_KEY');
     
@@ -29,10 +22,23 @@ serve(async (req) => {
       );
     }
 
+    let url = '';
+    
+    // Se lat e lon forem fornecidos, usar coordenadas
+    if (lat && lon) {
+      url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=pt_br`;
+    } else if (city) {
+      // Caso contrário, usar nome da cidade
+      url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric&lang=pt_br`;
+    } else {
+      return new Response(
+        JSON.stringify({ error: 'Cidade ou coordenadas são obrigatórias' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Consulta a API do OpenWeather
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric&lang=pt_br`
-    );
+    const response = await fetch(url);
 
     if (!response.ok) {
       if (response.status === 404) {
