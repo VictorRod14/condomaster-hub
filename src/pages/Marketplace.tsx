@@ -195,14 +195,14 @@ export default function Marketplace() {
           <p className="text-muted-foreground">Nenhum produto encontrado</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {products.map((product) => (
             <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="aspect-square bg-muted relative">
+              <div className="aspect-square bg-muted relative overflow-hidden">
                 <img
                   src={product.thumbnail}
                   alt={product.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain p-4"
                 />
                 <Badge className="absolute top-2 right-2">
                   {product.category}
