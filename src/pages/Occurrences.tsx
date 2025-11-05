@@ -37,10 +37,19 @@ const Occurrences = () => {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userRole, setUserRole] = useState<string>("");
 
   useEffect(() => {
     fetchOccurrences();
+    fetchUserRole();
   }, []);
+
+  const fetchUserRole = async () => {
+    const selectedRole = localStorage.getItem('selectedRole');
+    if (selectedRole) {
+      setUserRole(selectedRole);
+    }
+  };
 
   const fetchOccurrences = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -101,6 +110,20 @@ const Occurrences = () => {
       setOpen(false);
     }
     setLoading(false);
+  };
+
+  const handleStatusChange = async (occurrenceId: string, newStatus: string) => {
+    const { error } = await supabase
+      .from("occurrences")
+      .update({ status: newStatus as any })
+      .eq("id", occurrenceId);
+
+    if (error) {
+      toast.error("Erro ao atualizar status");
+    } else {
+      toast.success("Status atualizado com sucesso!");
+      fetchOccurrences();
+    }
   };
 
   const getStatusIcon = (status: string) => {
@@ -226,14 +249,31 @@ const Occurrences = () => {
                       Categoria: {occurrence.category}
                     </CardDescription>
                   </div>
-                  <span className={`text-xs px-3 py-1 rounded-full ${
-                    occurrence.status === 'resolvida' ? 'bg-success/20 text-success' :
-                    occurrence.status === 'em_andamento' ? 'bg-primary/20 text-primary' :
-                    occurrence.status === 'aberta' ? 'bg-warning/20 text-warning' :
-                    'bg-destructive/20 text-destructive'
-                  }`}>
-                    {getStatusLabel(occurrence.status)}
-                  </span>
+                  {userRole === 'sindico' || userRole === 'admin' ? (
+                    <Select 
+                      value={occurrence.status} 
+                      onValueChange={(value) => handleStatusChange(occurrence.id, value)}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="aberta">🔴 Aberta</SelectItem>
+                        <SelectItem value="em_andamento">🟡 Em Andamento</SelectItem>
+                        <SelectItem value="resolvida">🟢 Resolvida</SelectItem>
+                        <SelectItem value="cancelada">⚫ Cancelada</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <span className={`text-xs px-3 py-1 rounded-full ${
+                      occurrence.status === 'resolvida' ? 'bg-success/20 text-success' :
+                      occurrence.status === 'em_andamento' ? 'bg-primary/20 text-primary' :
+                      occurrence.status === 'aberta' ? 'bg-warning/20 text-warning' :
+                      'bg-destructive/20 text-destructive'
+                    }`}>
+                      {getStatusLabel(occurrence.status)}
+                    </span>
+                  )}
                 </div>
               </CardHeader>
               <CardContent>

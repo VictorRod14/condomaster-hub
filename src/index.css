@@ -58,6 +58,10 @@ All colors MUST be HSL.
     --chart-3: 38 92% 50%;
     --chart-4: 0 84% 60%;
     --chart-5: 280 65% 60%;
+    
+    --role-admin: 0 84% 60%;
+    --role-sindico: 221 83% 53%;
+    --role-morador: 142 76% 36%;
   }
 
   .dark {
@@ -109,6 +113,10 @@ All colors MUST be HSL.
     --chart-3: 38 92% 50%;
     --chart-4: 0 84% 60%;
     --chart-5: 280 65% 60%;
+    
+    --role-admin: 0 84% 60%;
+    --role-sindico: 221 83% 53%;
+    --role-morador: 142 76% 36%;
   }
 }
 

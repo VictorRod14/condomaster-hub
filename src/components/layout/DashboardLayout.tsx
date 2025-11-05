@@ -98,12 +98,29 @@ export const DashboardLayout = () => {
     localStorage.setItem('selectedRole', newRole);
   };
 
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return 'hsl(var(--role-admin))';
+      case 'sindico':
+        return 'hsl(var(--role-sindico))';
+      case 'morador':
+        return 'hsl(var(--role-morador))';
+      default:
+        return 'hsl(var(--primary))';
+    }
+  };
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <AppSidebar userRole={userRole} onRoleChange={handleRoleChange} />
         <main className="flex-1 flex flex-col">
           <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 lg:px-6">
+            <div 
+              className="absolute top-0 left-0 right-0 h-1" 
+              style={{ backgroundColor: getRoleColor(userRole) }}
+            />
             <SidebarTrigger />
             <div className="flex-1" />
           </header>

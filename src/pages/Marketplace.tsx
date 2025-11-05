@@ -8,6 +8,12 @@ import { ShoppingCart, Search, Star } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
+interface Category {
+  slug: string;
+  name: string;
+  url: string;
+}
+
 interface Product {
   id: number;
   title: string;
@@ -26,7 +32,7 @@ interface CartItem extends Product {
 export default function Marketplace() {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -169,12 +175,12 @@ export default function Marketplace() {
         </Badge>
         {categories.map((category) => (
           <Badge
-            key={category}
-            variant={selectedCategory === category ? 'default' : 'outline'}
+            key={category.slug}
+            variant={selectedCategory === category.slug ? 'default' : 'outline'}
             className="cursor-pointer whitespace-nowrap"
-            onClick={() => setSelectedCategory(category)}
+            onClick={() => setSelectedCategory(category.slug)}
           >
-            {categoryEmoji[category] || '📦'} {category}
+            {categoryEmoji[category.slug] || '📦'} {category.name}
           </Badge>
         ))}
       </div>
