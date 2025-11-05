@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Users, Megaphone, DollarSign, Calendar, AlertCircle } from "lucide-react";
+import { Building2, Users, Megaphone, DollarSign, Calendar, AlertCircle, Cloud, MapPin } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const Dashboard = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -11,10 +14,16 @@ const Dashboard = () => {
     reservations: 0,
     occurrences: 0,
   });
+  const [weather, setWeather] = useState<any>(null);
+  const [cepInput, setCepInput] = useState("");
+  const [cepData, setCepData] = useState<any>(null);
+  const [loadingWeather, setLoadingWeather] = useState(false);
+  const [loadingCep, setLoadingCep] = useState(false);
 
   useEffect(() => {
     fetchProfile();
     fetchStats();
+    fetchWeather();
   }, []);
 
   const fetchProfile = async () => {
@@ -107,6 +116,69 @@ const Dashboard = () => {
     });
   };
 
+  const fetchWeather = async () => {
+    setLoadingWeather(true);
+    try {
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("condominiums(*)")
+        .eq("id", (await supabase.auth.getUser()).data.user?.id)
+        .single();
+
+      const city = profileData?.condominiums?.city || "São Paulo";
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-weather`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ city })
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setWeather(data);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar clima:", error);
+    } finally {
+      setLoadingWeather(false);
+    }
+  };
+
+  const searchCep = async () => {
+    if (!cepInput) {
+      toast.error("Digite um CEP");
+      return;
+    }
+
+    setLoadingCep(true);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-cep`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cep: cepInput })
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setCepData(data);
+        toast.success("CEP encontrado!");
+      } else {
+        toast.error("CEP não encontrado");
+      }
+    } catch (error) {
+      console.error("Erro ao buscar CEP:", error);
+      toast.error("Erro ao buscar CEP");
+    } finally {
+      setLoadingCep(false);
+    }
+  };
+
   const statsCards = [
     {
       title: "Avisos",
@@ -177,6 +249,112 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        {/* Widget de Clima */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Cloud className="h-5 w-5 text-primary" />
+              Clima Atual
+            </CardTitle>
+            <CardDescription>
+              Informações meteorológicas da sua cidade
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loadingWeather ? (
+              <p className="text-sm text-muted-foreground">Carregando...</p>
+            ) : weather ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-2xl font-bold">{weather.city}</p>
+                    <p className="text-sm text-muted-foreground capitalize">
+                      {weather.description}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-4xl font-bold">{weather.temperature}°C</p>
+                    <p className="text-xs text-muted-foreground">
+                      Sensação: {weather.feels_like}°C
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2 pt-3 border-t">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Umidade</p>
+                    <p className="text-sm font-semibold">{weather.humidity}%</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Vento</p>
+                    <p className="text-sm font-semibold">{weather.wind_speed} m/s</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Pressão</p>
+                    <p className="text-sm font-semibold">{weather.pressure} hPa</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Não foi possível carregar o clima
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Widget de CEP */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-success" />
+              Consulta de CEP
+            </CardTitle>
+            <CardDescription>
+              Busque informações de endereço por CEP
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="00000-000"
+                  value={cepInput}
+                  onChange={(e) => setCepInput(e.target.value)}
+                  maxLength={9}
+                />
+                <Button onClick={searchCep} disabled={loadingCep}>
+                  {loadingCep ? "Buscando..." : "Buscar"}
+                </Button>
+              </div>
+
+              {cepData && (
+                <div className="space-y-2 pt-3 border-t">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Logradouro</p>
+                    <p className="text-sm font-semibold">{cepData.logradouro}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Bairro</p>
+                      <p className="text-sm font-semibold">{cepData.bairro}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Cidade</p>
+                      <p className="text-sm font-semibold">{cepData.localidade}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Estado</p>
+                    <p className="text-sm font-semibold">{cepData.uf}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
