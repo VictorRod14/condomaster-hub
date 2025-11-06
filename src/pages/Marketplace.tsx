@@ -195,47 +195,50 @@ export default function Marketplace() {
           <p className="text-muted-foreground">Nenhum produto encontrado</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           {products.map((product) => (
-            <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
-              <div className="relative bg-muted overflow-hidden h-[140px] flex items-center justify-center">
-                <img
-                  src={product.thumbnail}
-                  alt={product.title}
-                  className="max-w-full max-h-full object-contain p-3"
-                />
-                <Badge className="absolute top-2 right-2 text-[10px] px-1.5 py-0.5">
-                  {product.category}
-                </Badge>
-              </div>
-              <div className="p-2.5 flex flex-col flex-1">
-                <h3 className="font-medium text-xs mb-1 line-clamp-2 min-h-[32px]">
-                  {product.title}
-                </h3>
-                <div className="flex items-center gap-1 mb-2">
-                  <div className="flex items-center">
-                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                    <span className="ml-0.5 text-[10px] font-medium">{product.rating.toFixed(1)}</span>
-                  </div>
-                  <span className="text-[10px] text-muted-foreground">
-                    {product.stock > 0 ? `${product.stock} un.` : 'Esgotado'}
-                  </span>
+            <Card key={product.id} className="overflow-hidden hover:shadow-md transition-shadow">
+              <div className="flex sm:flex-col gap-3 p-3">
+                {/* Image Section */}
+                <div className="relative bg-muted rounded overflow-hidden w-24 h-24 sm:w-full sm:h-40 flex-shrink-0 flex items-center justify-center">
+                  <img
+                    src={product.thumbnail}
+                    alt={product.title}
+                    className="max-w-full max-h-full object-contain p-2"
+                  />
+                  <Badge className="absolute top-1 right-1 text-[9px] px-1 py-0">
+                    {product.category}
+                  </Badge>
                 </div>
-                <div className="mt-auto">
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="text-base font-bold text-primary">
-                      R$ {product.price.toFixed(2)}
+                
+                {/* Content Section */}
+                <div className="flex-1 flex flex-col min-w-0">
+                  <h3 className="font-medium text-sm mb-1 line-clamp-2">
+                    {product.title}
+                  </h3>
+                  
+                  <div className="flex items-center gap-1 mb-2">
+                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 flex-shrink-0" />
+                    <span className="text-xs font-medium">{product.rating.toFixed(1)}</span>
+                    <span className="text-xs text-muted-foreground">
+                      ({product.stock} un.)
                     </span>
                   </div>
-                  <Button
-                    onClick={() => addToCart(product)}
-                    disabled={product.stock === 0}
-                    size="sm"
-                    className="h-7 w-full text-xs"
-                  >
-                    <ShoppingCart className="h-3 w-3 mr-1" />
-                    Adicionar
-                  </Button>
+                  
+                  <div className="mt-auto">
+                    <div className="text-lg font-bold text-primary mb-2">
+                      R$ {product.price.toFixed(2)}
+                    </div>
+                    <Button
+                      onClick={() => addToCart(product)}
+                      disabled={product.stock === 0}
+                      size="sm"
+                      className="w-full text-xs h-8"
+                    >
+                      <ShoppingCart className="h-3 w-3 mr-1" />
+                      Adicionar
+                    </Button>
+                  </div>
                 </div>
               </div>
             </Card>
