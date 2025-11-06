@@ -199,12 +199,12 @@ export default function Marketplace() {
           {products.map((product) => (
             <Card key={product.id} className="overflow-hidden hover:shadow-md transition-shadow">
               <div className="flex flex-col">
-                {/* Image on top - smaller, cropped */}
-                <div className="relative bg-muted overflow-hidden h-48">
+                {/* Image on top - small square */}
+                <div className="relative bg-muted overflow-hidden h-40">
                   <img
                     src={product.thumbnail}
                     alt={product.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain p-4"
                   />
                   <Badge className="absolute top-2 right-2 text-xs">
                     {product.category}
