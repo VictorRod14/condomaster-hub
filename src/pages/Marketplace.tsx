@@ -195,62 +195,28 @@ export default function Marketplace() {
           <p className="text-muted-foreground">Nenhum produto encontrado</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {products.map((product) => (
             <Card key={product.id} className="overflow-hidden hover:shadow-md transition-shadow">
-              {/* Desktop: Image on top, vertical layout */}
-              <div className="hidden md:flex flex-col">
-                <div className="relative bg-muted flex items-center justify-center h-64 p-4">
+              <div className="flex flex-col">
+                {/* Image on top - smaller, cropped */}
+                <div className="relative bg-muted overflow-hidden h-48">
                   <img
                     src={product.thumbnail}
                     alt={product.title}
-                    className="max-w-full max-h-full object-contain"
+                    className="w-full h-full object-cover"
                   />
                   <Badge className="absolute top-2 right-2 text-xs">
                     {product.category}
                   </Badge>
                 </div>
-                <div className="p-4">
-                  <h3 className="font-medium text-base mb-2 line-clamp-2 min-h-[3rem]">
+                
+                {/* Content below */}
+                <div className="p-3">
+                  <h3 className="font-medium text-sm mb-2 line-clamp-2 min-h-[2.5rem]">
                     {product.title}
                   </h3>
-                  <div className="flex items-center gap-1 mb-3">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-medium">{product.rating.toFixed(1)}</span>
-                    <span className="text-sm text-muted-foreground">
-                      ({product.stock} un.)
-                    </span>
-                  </div>
-                  <div className="text-2xl font-bold text-primary mb-3">
-                    R$ {product.price.toFixed(2)}
-                  </div>
-                  <Button
-                    onClick={() => addToCart(product)}
-                    disabled={product.stock === 0}
-                    className="w-full"
-                  >
-                    <ShoppingCart className="h-4 w-4 mr-2" />
-                    Adicionar
-                  </Button>
-                </div>
-              </div>
-
-              {/* Mobile: Image on left, horizontal layout */}
-              <div className="flex md:hidden gap-3 p-3">
-                <div className="relative bg-muted rounded flex-shrink-0 flex items-center justify-center w-24 h-24">
-                  <img
-                    src={product.thumbnail}
-                    alt={product.title}
-                    className="w-full h-full object-contain p-2"
-                  />
-                  <Badge className="absolute top-1 right-1 text-[10px] px-1 py-0.5">
-                    {product.category}
-                  </Badge>
-                </div>
-                <div className="flex-1 flex flex-col min-w-0">
-                  <h3 className="font-medium text-sm mb-1 line-clamp-2">
-                    {product.title}
-                  </h3>
+                  
                   <div className="flex items-center gap-1 mb-2">
                     <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                     <span className="text-xs font-medium">{product.rating.toFixed(1)}</span>
@@ -258,16 +224,18 @@ export default function Marketplace() {
                       ({product.stock} un.)
                     </span>
                   </div>
-                  <div className="text-lg font-bold text-primary mb-2">
+                  
+                  <div className="text-xl font-bold text-primary mb-3">
                     R$ {product.price.toFixed(2)}
                   </div>
+                  
                   <Button
                     onClick={() => addToCart(product)}
                     disabled={product.stock === 0}
                     size="sm"
-                    className="w-full h-8 text-xs"
+                    className="w-full"
                   >
-                    <ShoppingCart className="h-3 w-3 mr-1" />
+                    <ShoppingCart className="h-4 w-4 mr-2" />
                     Adicionar
                   </Button>
                 </div>
