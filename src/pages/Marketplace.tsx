@@ -195,47 +195,48 @@ export default function Marketplace() {
           <p className="text-muted-foreground">Nenhum produto encontrado</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {products.map((product) => (
             <Card key={product.id} className="overflow-hidden hover:shadow-md transition-shadow">
-              <div className="flex sm:flex-col gap-3 p-3">
+              {/* Mobile: Layout Horizontal | Desktop: Layout Vertical */}
+              <div className="flex md:flex-col gap-3 p-3">
                 {/* Image Section */}
-                <div className="relative bg-muted rounded overflow-hidden w-24 h-24 sm:w-full sm:h-40 flex-shrink-0 flex items-center justify-center">
+                <div className="relative bg-muted rounded flex-shrink-0 flex items-center justify-center w-28 h-28 md:w-full md:h-56">
                   <img
                     src={product.thumbnail}
                     alt={product.title}
-                    className="max-w-full max-h-full object-contain p-2"
+                    className="w-full h-full object-contain p-2"
                   />
-                  <Badge className="absolute top-1 right-1 text-[9px] px-1 py-0">
+                  <Badge className="absolute top-2 right-2 text-xs">
                     {product.category}
                   </Badge>
                 </div>
                 
                 {/* Content Section */}
                 <div className="flex-1 flex flex-col min-w-0">
-                  <h3 className="font-medium text-sm mb-1 line-clamp-2">
+                  <h3 className="font-medium text-sm md:text-base mb-2 line-clamp-2">
                     {product.title}
                   </h3>
                   
                   <div className="flex items-center gap-1 mb-2">
-                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 flex-shrink-0" />
+                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                     <span className="text-xs font-medium">{product.rating.toFixed(1)}</span>
                     <span className="text-xs text-muted-foreground">
                       ({product.stock} un.)
                     </span>
                   </div>
                   
-                  <div className="mt-auto">
-                    <div className="text-lg font-bold text-primary mb-2">
+                  <div className="mt-auto space-y-2">
+                    <div className="text-xl md:text-2xl font-bold text-primary">
                       R$ {product.price.toFixed(2)}
                     </div>
                     <Button
                       onClick={() => addToCart(product)}
                       disabled={product.stock === 0}
                       size="sm"
-                      className="w-full text-xs h-8"
+                      className="w-full h-9"
                     >
-                      <ShoppingCart className="h-3 w-3 mr-1" />
+                      <ShoppingCart className="h-4 w-4 mr-2" />
                       Adicionar
                     </Button>
                   </div>
