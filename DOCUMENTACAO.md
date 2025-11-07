@@ -51,7 +51,104 @@ Este é um sistema completo de gestão de condomínios desenvolvido como trabalh
 
 ## 3. Arquitetura do Projeto
 
-### 3.1 Estrutura de Diretórios
+### 3.1 Visão Geral da Arquitetura
+
+```mermaid
+graph TB
+    subgraph "Frontend - React"
+        A[React App] --> B[React Router]
+        A --> C[TanStack Query]
+        A --> D[UI Components<br/>shadcn/ui]
+        A --> E[Tailwind CSS]
+    end
+    
+    subgraph "Backend - Supabase"
+        F[PostgreSQL Database] --> G[Row Level Security]
+        H[Edge Functions<br/>Deno Runtime]
+        I[Authentication<br/>JWT Tokens]
+        J[Realtime Subscriptions]
+    end
+    
+    subgraph "APIs Externas"
+        K[ViaCEP API<br/>Consulta CEP]
+        L[OpenWeatherMap<br/>Clima]
+        M[DummyJSON<br/>Produtos]
+    end
+    
+    A -->|REST API| F
+    A -->|WebSocket| J
+    A -->|HTTP| H
+    H -->|Fetch| K
+    H -->|Fetch| L
+    H -->|Fetch| M
+    F -->|Valida| G
+    I -->|Autentica| A
+    
+    style A fill:#61dafb
+    style F fill:#3ecf8e
+    style H fill:#3ecf8e
+    style K fill:#ffa500
+    style L fill:#ffa500
+    style M fill:#ffa500
+```
+
+### 3.2 Fluxo de Autenticação
+
+```mermaid
+sequenceDiagram
+    participant U as Usuário
+    participant F as Frontend
+    participant SA as Supabase Auth
+    participant DB as Database
+    participant T as Trigger Function
+    
+    U->>F: Acessa /auth
+    F->>U: Exibe formulário
+    U->>F: Preenche email/senha
+    F->>SA: signUp(email, password)
+    SA->>SA: Valida credenciais
+    SA->>DB: INSERT auth.users
+    DB->>T: TRIGGER handle_new_user()
+    T->>DB: INSERT profiles
+    T->>DB: INSERT user_roles (morador)
+    SA->>F: Retorna JWT token
+    F->>F: Salva token (localStorage)
+    F->>U: Redireciona para /dashboard
+    
+    Note over U,T: Auto-confirm habilitado
+```
+
+### 3.3 Sistema de Roles e Permissões
+
+```mermaid
+graph TD
+    U[Usuário Autenticado] -->|auth.uid| R{Verifica Role}
+    
+    R -->|admin| A[Admin Access]
+    R -->|sindico| S[Síndico Access]
+    R -->|morador| M[Morador Access]
+    
+    A --> A1[Gestão de Condomínios]
+    A --> A2[Gestão de Usuários]
+    A --> A3[Todas as Funcionalidades]
+    
+    S --> S1[Gestão do Condomínio]
+    S --> S2[Aprovar Reservas]
+    S --> S3[Gestão Financeira]
+    S --> S4[Criar Comunicados]
+    
+    M --> M1[Ver Comunicados]
+    M --> M2[Criar Ocorrências]
+    M --> M3[Solicitar Reservas]
+    M --> M4[Ver Pagamentos]
+    M --> M5[Marketplace]
+    
+    style A fill:#ff6b6b
+    style S fill:#4ecdc4
+    style M fill:#95e1d3
+```
+
+### 3.4 Estrutura de Diretórios
 
 ```
 ├── public/                    # Arquivos estáticos
@@ -259,6 +356,119 @@ Todos localizados em `src/components/ui/`:
 ## 5. Backend - Estrutura e Funcionalidades
 
 ### 5.1 Banco de Dados PostgreSQL
+
+#### 5.1.0 Diagrama Entidade-Relacionamento (ERD)
+
+```mermaid
+erDiagram
+    AUTH_USERS ||--o{ PROFILES : "1:1"
+    AUTH_USERS ||--o{ USER_ROLES : "1:N"
+    
+    CONDOMINIUMS ||--o{ PROFILES : "tem"
+    CONDOMINIUMS ||--o{ UNITS : "contém"
+    CONDOMINIUMS ||--o{ ANNOUNCEMENTS : "possui"
+    CONDOMINIUMS ||--o{ OCCURRENCES : "registra"
+    CONDOMINIUMS ||--o{ RESERVATIONS : "gerencia"
+    CONDOMINIUMS ||--o{ COMMON_AREAS : "disponibiliza"
+    CONDOMINIUMS ||--o{ FINANCIAL_RECORDS : "controla"
+    CONDOMINIUMS ||--o{ PEDIDOS : "recebe"
+    
+    UNITS ||--o{ PROFILES : "abriga"
+    UNITS ||--o{ FINANCIAL_RECORDS : "responsável"
+    
+    PROFILES ||--o{ ANNOUNCEMENTS : "cria"
+    PROFILES ||--o{ OCCURRENCES : "reporta"
+    PROFILES ||--o{ RESERVATIONS : "solicita"
+    PROFILES ||--o{ MESSAGES : "envia/recebe"
+    PROFILES ||--o{ PEDIDOS : "faz"
+    PROFILES ||--o{ COMENTARIOS_AVISOS : "comenta"
+    
+    PEDIDOS ||--o{ ITENS_PEDIDO : "contém"
+    PRODUTOS ||--o{ ITENS_PEDIDO : "vendido em"
+    
+    ANNOUNCEMENTS ||--o{ COMENTARIOS_AVISOS : "possui"
+    OCCURRENCES ||--o{ COMENTARIOS_OCORRENCIAS : "possui"
+    
+    COMMON_AREAS ||--o{ RESERVATIONS : "reservado"
+    
+    PROFILES {
+        uuid id PK
+        uuid condominium_id FK
+        uuid unit_id FK
+        text full_name
+        text phone
+        text avatar_url
+    }
+    
+    USER_ROLES {
+        uuid id PK
+        uuid user_id FK
+        app_role role
+    }
+    
+    CONDOMINIUMS {
+        uuid id PK
+        text name
+        text address
+        text city
+        text state
+        text zip_code
+    }
+    
+    UNITS {
+        uuid id PK
+        uuid condominium_id FK
+        text number
+        integer floor
+        text block
+    }
+    
+    ANNOUNCEMENTS {
+        uuid id PK
+        uuid condominium_id FK
+        uuid author_id FK
+        text title
+        text content
+        text priority
+    }
+    
+    OCCURRENCES {
+        uuid id PK
+        uuid condominium_id FK
+        uuid reporter_id FK
+        text title
+        text description
+        occurrence_status status
+    }
+    
+    RESERVATIONS {
+        uuid id PK
+        uuid condominium_id FK
+        uuid common_area_id FK
+        uuid user_id FK
+        date reservation_date
+        time start_time
+        time end_time
+        reservation_status status
+    }
+    
+    PEDIDOS {
+        uuid id PK
+        uuid morador_id FK
+        uuid condominio_id FK
+        numeric total
+        text status
+        text forma_pagamento
+    }
+    
+    PRODUTOS {
+        uuid id PK
+        text nome
+        text categoria
+        numeric preco
+        integer estoque
+    }
+```
 
 #### 5.1.1 Tabelas Principais
 
@@ -477,6 +687,44 @@ Configurados no Supabase:
 ## 6. Fluxo de Dados
 
 ### 6.1 Autenticação
+
+```mermaid
+flowchart TD
+    Start([Usuário acessa /auth]) --> Form[Preenche formulário]
+    Form --> Submit{Tipo de ação?}
+    
+    Submit -->|Login| Login[Supabase Auth Login]
+    Submit -->|Registro| Register[Supabase Auth Register]
+    
+    Login --> ValidLogin{Credenciais válidas?}
+    ValidLogin -->|Não| ErrorLogin[Exibe erro]
+    ErrorLogin --> Form
+    ValidLogin -->|Sim| SaveSession
+    
+    Register --> ValidReg{Email válido?}
+    ValidReg -->|Não| ErrorReg[Exibe erro]
+    ErrorReg --> Form
+    ValidReg -->|Sim| CreateUser[Cria auth.users]
+    
+    CreateUser --> Trigger[TRIGGER handle_new_user]
+    Trigger --> CreateProfile[INSERT profiles]
+    Trigger --> CreateRole[INSERT user_roles<br/>role=morador]
+    CreateRole --> SaveSession
+    
+    SaveSession[Salva JWT no localStorage]
+    SaveSession --> CheckRole[DashboardLayout verifica role]
+    CheckRole --> FetchUserData[Busca dados do usuário]
+    FetchUserData --> Redirect[Redireciona para /dashboard]
+    Redirect --> End([Dashboard carregado])
+    
+    style Start fill:#e1f5e1
+    style End fill:#e1f5e1
+    style ErrorLogin fill:#ffe1e1
+    style ErrorReg fill:#ffe1e1
+    style Trigger fill:#fff4e1
+```
+
+### 6.1 (Detalhado)
 ```
 1. Usuário acessa /auth
 2. Preenche formulário de login/registro
@@ -489,6 +737,42 @@ Configurados no Supabase:
 ```
 
 ### 6.2 Busca de Produtos (Marketplace)
+
+```mermaid
+sequenceDiagram
+    participant U as Usuário
+    participant MC as Marketplace Component
+    participant EF as Edge Function<br/>fetch-products
+    participant API as DummyJSON API
+    participant DB as Database<br/>pedidos/itens
+    
+    U->>MC: Acessa /marketplace
+    MC->>EF: GET fetch-categories
+    EF->>API: GET /products/categories
+    API-->>EF: Array de categorias
+    EF-->>MC: Categorias
+    MC->>U: Exibe filtros
+    
+    U->>MC: Seleciona categoria/busca
+    MC->>EF: GET fetch-products?category=X&search=Y
+    EF->>API: GET /products/category/X?limit=30
+    API-->>EF: { products: [...] }
+    EF-->>MC: Lista de produtos
+    MC->>U: Renderiza grade 3 colunas
+    
+    U->>MC: Clica "Adicionar ao Carrinho"
+    MC->>MC: Adiciona ao estado local
+    MC->>U: Atualiza contador carrinho
+    
+    U->>MC: Clica "Finalizar Pedido"
+    MC->>DB: INSERT pedidos
+    DB-->>MC: ID do pedido
+    MC->>DB: INSERT itens_pedido (batch)
+    DB-->>MC: Confirmação
+    MC->>U: Toast sucesso + redireciona
+    
+    Note over MC,DB: RLS valida morador_id = auth.uid()
+```
 ```
 1. Usuário acessa /marketplace
 2. React component carrega categorias via fetch-categories
@@ -502,6 +786,29 @@ Configurados no Supabase:
 ```
 
 ### 6.3 Criação de Comunicado
+
+```mermaid
+flowchart LR
+    A[Síndico/Admin<br/>acessa /announcements] --> B{Clica criar}
+    B --> C[Abre formulário]
+    C --> D[Preenche título<br/>e conteúdo]
+    D --> E[Submit form]
+    E --> F{RLS Policy Check}
+    
+    F -->|Falha| G[Erro: Sem permissão]
+    F -->|Sucesso| H[INSERT announcements]
+    
+    H --> I[Trigger Realtime]
+    I --> J1[Atualiza UI<br/>Síndico]
+    I --> J2[Atualiza UI<br/>Moradores online]
+    
+    J1 --> K[Toast sucesso]
+    J2 --> K
+    
+    style F fill:#fff4e1
+    style G fill:#ffe1e1
+    style I fill:#e1f0ff
+```
 ```
 1. Síndico/admin acessa /announcements
 2. Clica em criar novo comunicado
@@ -514,6 +821,39 @@ Configurados no Supabase:
 ```
 
 ### 6.4 Consulta de CEP
+
+```mermaid
+sequenceDiagram
+    participant U as Usuário
+    participant D as Dashboard
+    participant EF as Edge Function<br/>get-cep
+    participant API as ViaCEP API
+    
+    U->>D: Digite CEP no input
+    U->>D: Clica "Buscar"
+    D->>D: Remove caracteres não numéricos
+    D->>D: Valida 8 dígitos
+    
+    alt CEP inválido
+        D->>U: Toast erro "CEP deve ter 8 dígitos"
+    else CEP válido
+        D->>EF: POST { cep: "12345678" }
+        EF->>EF: Valida formato
+        EF->>API: GET /ws/12345678/json/
+        
+        alt CEP não encontrado
+            API-->>EF: { erro: true }
+            EF-->>D: Status 404
+            D->>U: Toast "CEP não encontrado"
+        else CEP encontrado
+            API-->>EF: { logradouro, bairro, cidade, uf }
+            EF-->>D: Dados do endereço
+            D->>U: Exibe card com resultado
+        end
+    end
+    
+    Note over EF,API: CORS habilitado
+```
 ```
 1. Usuário digita CEP no Dashboard
 2. Clique aciona chamada para get-cep function
@@ -528,6 +868,58 @@ Configurados no Supabase:
 ## 7. Segurança
 
 ### 7.1 Row Level Security (RLS)
+
+```mermaid
+graph TB
+    subgraph "Cliente Frontend"
+        A[Usuário autenticado<br/>JWT Token]
+    end
+    
+    subgraph "Supabase Backend"
+        B[Requisição SQL] --> C{RLS Enabled?}
+        C -->|Sim| D[Aplica Policies]
+        C -->|Não| E[Acesso negado]
+        
+        D --> F{Policy Check}
+        F -->|auth.uid = user_id| G[Dados próprios]
+        F -->|has_role admin| H[Todos os dados]
+        F -->|condominium_id match| I[Dados do condomínio]
+        F -->|Falha| J[Empty result set]
+        
+        G --> K[Retorna dados]
+        H --> K
+        I --> K
+    end
+    
+    A -->|Authorization header| B
+    K --> A
+    
+    style E fill:#ffe1e1
+    style J fill:#ffe1e1
+    style K fill:#e1f5e1
+```
+
+**Exemplo de Policy (announcements)**:
+```sql
+-- Política de SELECT
+CREATE POLICY "Users can view announcements in their condominium"
+ON announcements FOR SELECT
+USING (
+  condominium_id IN (
+    SELECT condominium_id 
+    FROM profiles 
+    WHERE id = auth.uid()
+  )
+);
+
+-- Política de INSERT (apenas síndico/admin)
+CREATE POLICY "Sindicos can create announcements"
+ON announcements FOR INSERT
+WITH CHECK (
+  has_role(auth.uid(), 'sindico') OR 
+  has_role(auth.uid(), 'admin')
+);
+```
 - Todas as tabelas possuem RLS habilitado
 - Policies baseadas em auth.uid()
 - Separação por condomínio_id
@@ -554,7 +946,34 @@ Configurados no Supabase:
 
 ## 8. Responsividade
 
-### 8.1 Breakpoints Tailwind
+### 8.1 Layout Responsivo
+
+```mermaid
+graph LR
+    subgraph "Mobile < 768px"
+        M1[Sidebar colapsável] --> M2[Menu hamburger]
+        M3[Grid 1 coluna] --> M4[Cards empilhados]
+        M5[Imagens 100% width]
+    end
+    
+    subgraph "Tablet 768px-1024px"
+        T1[Sidebar visível] --> T2[Navegação lateral]
+        T3[Grid 2 colunas] --> T4[Cards lado a lado]
+        T5[Imagens responsivas]
+    end
+    
+    subgraph "Desktop > 1024px"
+        D1[Sidebar fixa] --> D2[Navegação completa]
+        D3[Grid 3 colunas] --> D4[Layout otimizado]
+        D5[Imagens otimizadas]
+    end
+    
+    style M1 fill:#e1f0ff
+    style T1 fill:#fff4e1
+    style D1 fill:#e1f5e1
+```
+
+### 8.2 Breakpoints Tailwind
 - `sm`: 640px
 - `md`: 768px
 - `lg`: 1024px
@@ -625,7 +1044,51 @@ Configurados no Supabase:
 
 ## 11. Deploy e CI/CD
 
-### 11.1 Deploy Frontend
+### 11.1 Pipeline de Deploy
+
+```mermaid
+flowchart TD
+    subgraph "Desenvolvimento"
+        A[Código local] --> B[Git commit]
+        B --> C[Git push]
+    end
+    
+    subgraph "GitHub"
+        C --> D[Repository]
+        D --> E[Sync bidirecional]
+    end
+    
+    subgraph "Lovable Platform"
+        E --> F[Lovable recebe mudanças]
+        F --> G{Tipo de mudança?}
+        
+        G -->|Frontend| H[Vite build]
+        G -->|Backend| I[Deploy edge functions]
+        G -->|Database| J[Executa migrations]
+        
+        H --> K[Preview URL]
+        I --> L[Functions deployed]
+        J --> M[Schema atualizado]
+        
+        K --> N{Usuário aprova?}
+        N -->|Sim| O[Update Production]
+        N -->|Não| P[Mantém versão anterior]
+        
+        L --> Auto[Deploy automático]
+        M --> Auto
+    end
+    
+    subgraph "Produção"
+        O --> Q[lovable.app domain]
+        Q --> R[CDN global]
+    end
+    
+    style O fill:#e1f5e1
+    style Auto fill:#e1f0ff
+    style P fill:#ffe1e1
+```
+
+### 11.2 Deploy Frontend
 - Plataforma: Lovable (lovable.app)
 - Build automático via Vite
 - Deploy em produção com um clique
